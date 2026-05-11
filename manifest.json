@@ -1,0 +1,15 @@
+{
+  "name": "Your Plan",
+  "short_name": "Plan",
+  "start_url": "./your_plan_v_final.html",
+  "display": "standalone",
+  "background_color": "#0d0f14",
+  "theme_color": "#00c8f0",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1043/1043141.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
