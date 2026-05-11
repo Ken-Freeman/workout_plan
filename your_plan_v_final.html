@@ -1,0 +1,838 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0f14;--bg2:#131620;--bg3:#1a1d26;--bg4:#1f2235;
+  --cyan:#00c8f0;--green:#00e87a;--amber:#f59e0b;--purple:#a78bfa;--red:#ff4d6d;--pelo:#e8643a;
+  --text:#e8eaf0;--text2:#8b92a8;--text3:#555e7a;
+  --border:#1e2236;--border2:#252a40;
+  --font-mono:'JetBrains Mono',monospace;--font:'Inter',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden;font-size:14px;}
+.hdr{background:var(--bg2);padding:14px 14px 0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.plan-title{font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--cyan);letter-spacing:-.5px;}
+.plan-sub{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+.goal-val{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--green);margin-top:2px;}
+.goal-lbl{font-size:9px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;}
+.stats-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
+.stats-row::-webkit-scrollbar{display:none;}
+.stat-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:7px 10px;flex-shrink:0;}
+.stat-lbl{font-family:var(--font-mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.stat-val{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--cyan);}
+.prow{display:flex;justify-content:space-between;align-items:center;padding:8px 0 5px;}
+.plbl{font-size:11px;color:var(--text2);font-family:var(--font-mono);}
+.ppct{font-size:11px;color:var(--green);font-family:var(--font-mono);}
+.pbar{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:2px;transition:width .4s;}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;margin-top:3px;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:9px 13px 11px;font-size:10px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;text-align:center;}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.tab-icon{font-size:14px;display:block;margin-bottom:2px;}
+.screen{display:none;padding:14px 14px 90px;}
+.screen.active{display:block;}
+.sh{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin:16px 0 9px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.card-cyan{border-left:3px solid var(--cyan);}
+.card-green{border-left:3px solid var(--green);}
+.card-pelo{border-left:3px solid var(--pelo);}
+.card-amber{border-left:3px solid var(--amber);}
+.tbadge{font-family:var(--font-mono);font-size:9px;padding:3px 7px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+.bg-gym{background:rgba(0,200,240,.12);color:var(--cyan);border:1px solid rgba(0,200,240,.3);}
+.bg-home{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.25);}
+.bg-run{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25);}
+.bg-rest{background:rgba(139,146,168,.08);color:var(--text2);border:1px solid var(--border2);}
+.bg-pelo{background:rgba(232,100,58,.12);color:var(--pelo);border:1px solid rgba(232,100,58,.3);}
+.bg-climb{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.sdiv{font-family:var(--font-mono);font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;padding:10px 0 5px;border-top:1px solid var(--border);margin-top:2px;}
+.sdiv:first-child{border-top:none;padding-top:0;}
+.exrow{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.exrow:last-child{border-bottom:none;padding-bottom:0;}
+.excheck{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s;}
+.excheck.done{background:var(--green);border-color:var(--green);}
+.excheck.done::after{content:'✓';font-size:11px;color:#000;font-weight:800;}
+.exname{font-size:13px;font-weight:500;color:var(--text);}
+.exsets{font-family:var(--font-mono);font-size:11px;color:var(--cyan);margin-top:2px;}
+.exdetail{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
+.exnote{font-size:10px;color:var(--text3);margin-top:2px;font-style:italic;}
+.pelo-box{background:rgba(232,100,58,.06);border:1px solid rgba(232,100,58,.2);border-radius:12px;padding:12px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;}
+.pelo-lbl{font-family:var(--font-mono);font-size:9px;color:var(--pelo);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.pelo-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.pelo-desc{font-size:11px;color:var(--text2);line-height:1.5;}
+.chkrow{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.chkrow:last-child{border-bottom:none;}
+.chkdot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.chkdot.done{background:var(--green);border-color:var(--green);}
+.chkdot.done::after{content:'✓';font-size:11px;color:#000;font-weight:800;}
+.chklbl{font-size:13px;color:var(--text);flex:1;}
+.chklbl.done{color:var(--text3);text-decoration:line-through;}
+.chktime{font-family:var(--font-mono);font-size:10px;color:var(--cyan);flex-shrink:0;}
+.wpill{flex-shrink:0;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:9px 10px;text-align:center;cursor:pointer;min-width:64px;transition:all .15s;}
+.wpill.active{background:var(--bg4);border-color:var(--cyan);}
+.wpill-name{font-family:var(--font-mono);font-size:9px;color:var(--text2);text-transform:uppercase;margin-bottom:3px;}
+.wpill-emoji{font-size:17px;display:block;margin-bottom:3px;}
+.wpill-type{font-family:var(--font-mono);font-size:9px;color:var(--text3);}
+.wpill.active .wpill-name,.wpill.active .wpill-type{color:var(--cyan);}
+.mwrap{display:flex;gap:12px;margin-bottom:0;}
+.mtcol{display:flex;flex-direction:column;align-items:center;width:58px;flex-shrink:0;}
+.mtime{font-family:var(--font-mono);font-size:9px;color:var(--cyan);white-space:nowrap;text-align:center;}
+.mdot{width:7px;height:7px;border-radius:50%;background:var(--cyan);margin:5px 0;flex-shrink:0;}
+.mline{flex:1;width:1px;background:var(--border2);}
+.mcontent{flex:1;padding-bottom:16px;}
+.mname{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.mdesc{font-size:11px;color:var(--text2);margin-bottom:3px;line-height:1.5;}
+.mmacros{font-family:var(--font-mono);font-size:10px;color:var(--green);}
+.gcat{font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:12px 0 6px;}
+.gitem{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.gitem:last-child{border-bottom:none;}
+.gcheck{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.gcheck.done{background:var(--green);border-color:var(--green);}
+.gcheck.done::after{content:'✓';font-size:10px;color:#000;font-weight:800;}
+.gtxt{font-size:13px;color:var(--text);}
+.gtxt.done{color:var(--text3);text-decoration:line-through;}
+.menu-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;resize:none;outline:none;min-height:88px;line-height:1.5;}
+.menu-ta:focus{border-color:var(--cyan);}
+.menu-ta::placeholder{color:var(--text3);}
+.abtn{width:100%;margin-top:10px;background:var(--cyan);color:#000;font-family:var(--font-mono);font-size:12px;font-weight:700;padding:12px;border-radius:10px;border:none;cursor:pointer;letter-spacing:.05em;transition:opacity .15s;}
+.abtn:disabled{opacity:.4;cursor:not-allowed;}
+.insight-box{background:var(--bg3);border-left:3px solid var(--purple);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6;}
+.cbadge{display:inline-block;font-family:var(--font-mono);font-size:9px;padding:2px 7px;border-radius:4px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+.cb-best{background:rgba(0,232,122,.12);color:var(--green);border:1px solid rgba(0,232,122,.3);}
+.cb-solid{background:rgba(0,200,240,.1);color:var(--cyan);border:1px solid rgba(0,200,240,.2);}
+.cb-ok{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25);}
+.ccard{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:8px;}
+.cgrade{font-family:var(--font-mono);font-size:17px;font-weight:700;}
+.ga{color:var(--green);}.gb{color:var(--cyan);}.gc{color:var(--amber);}
+.ldots{display:flex;gap:6px;justify-content:center;padding:28px;}
+.ldot{width:8px;height:8px;border-radius:50%;background:var(--cyan);animation:lp 1.2s infinite;}
+.ldot:nth-child(2){animation-delay:.2s;}.ldot:nth-child(3){animation-delay:.4s;}
+@keyframes lp{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1);}}
+.cinp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font-mono);font-size:14px;outline:none;margin-bottom:12px;}
+.cinp:focus{border-color:var(--cyan);}
+.clbl{font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;}
+.sbtn{width:100%;background:transparent;border:1px solid var(--cyan);color:var(--cyan);font-family:var(--font-mono);font-size:11px;font-weight:700;padding:11px;border-radius:10px;cursor:pointer;letter-spacing:.07em;transition:all .15s;}
+.sbtn:hover{background:var(--cyan);color:#000;}
+.actbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:11px 8px;border-radius:10px;cursor:pointer;text-align:center;letter-spacing:.03em;transition:all .15s;width:100%;}
+.actbtn:hover{border-color:var(--cyan);color:var(--cyan);}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.rcard{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;}
+.rtitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.rbody{font-size:11px;color:var(--text2);line-height:1.6;}
+.s2grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.hrow{padding:9px 0;border-bottom:1px solid var(--border);font-family:var(--font-mono);}
+.hrow:last-child{border-bottom:none;}
+.hdate{font-size:10px;color:var(--text3);margin-bottom:2px;}
+.hvals{font-size:12px;color:var(--cyan);}
+.bnav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:200;padding:6px 0 12px;}
+.nitem{flex:1;text-align:center;cursor:pointer;padding:3px 0;}
+.nicon{font-size:16px;display:block;}
+.nlbl{font-family:var(--font-mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;margin-top:2px;}
+.nitem.active .nlbl{color:var(--cyan);}
+/* activity logger */
+.act-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.act-type-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;}
+.act-type-btn.selected{border-color:var(--green);background:rgba(0,232,122,.06);}
+.act-type-btn .at-icon{font-size:22px;display:block;margin-bottom:4px;}
+.act-type-btn .at-lbl{font-family:var(--font-mono);font-size:11px;color:var(--text2);}
+.act-type-btn.selected .at-lbl{color:var(--green);}
+.act-options{display:none;}
+.act-options.show{display:block;}
+.ao-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.ao-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;font-family:var(--font-mono);font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.ao-pill.sel{border-color:var(--cyan);color:var(--cyan);background:rgba(0,200,240,.08);}
+.act-log-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.act-log-left{flex:1;}
+.act-log-type{font-family:var(--font-mono);font-size:10px;color:var(--cyan);text-transform:uppercase;margin-bottom:2px;}
+.act-log-detail{font-size:13px;color:var(--text);}
+.act-log-cal{font-family:var(--font-mono);font-size:12px;color:var(--green);}
+.act-log-date{font-family:var(--font-mono);font-size:10px;color:var(--text3);}
+.pt-day-badge{display:inline-block;background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3);font-family:var(--font-mono);font-size:9px;padding:2px 8px;border-radius:6px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;}
+</style>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div><div class="plan-title">YOUR PLAN</div><div class="plan-sub" id="hdr-date"></div></div>
+    <div style="text-align:right;"><div class="goal-lbl">Goal</div><div class="goal-val">Aug 29 ✦</div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-pill"><div class="stat-lbl">Weight</div><div class="stat-val">160 lb</div></div>
+    <div class="stat-pill"><div class="stat-lbl">Calories</div><div class="stat-val">~1,900</div></div>
+    <div class="stat-pill"><div class="stat-lbl">Protein</div><div class="stat-val">150g+</div></div>
+    <div class="stat-pill"><div class="stat-lbl">Days left</div><div class="stat-val" id="hdr-days">—</div></div>
+    <div class="stat-pill"><div class="stat-lbl">Phase</div><div class="stat-val">1 / 3</div></div>
+  </div>
+  <div class="prow"><span class="plbl">Daily checklist</span><span class="ppct" id="hdr-pct">0 / 10</span></div>
+  <div class="pbar"><div class="pbar-fill" id="hdr-bar" style="width:0%"></div></div>
+  <div class="tabs">
+    <div class="tab active" id="tab-today" onclick="showTab('today')"><span class="tab-icon">✅</span>TODAY</div>
+    <div class="tab" id="tab-plan" onclick="showTab('plan')"><span class="tab-icon">📅</span>PLAN</div>
+    <div class="tab" id="tab-food" onclick="showTab('food')"><span class="tab-icon">🥗</span>FOOD</div>
+    <div class="tab" id="tab-menu" onclick="showTab('menu')"><span class="tab-icon">🍽️</span>MENU AI</div>
+    <div class="tab" id="tab-activity" onclick="showTab('activity')"><span class="tab-icon">⛳</span>ACTIVITY</div>
+    <div class="tab" id="tab-progress" onclick="showTab('progress')"><span class="tab-icon">📈</span>PROGRESS</div>
+    <div class="tab" id="tab-rules" onclick="showTab('rules')"><span class="tab-icon">⚡</span>RULES</div>
+  </div>
+</div>
+
+<!-- TODAY -->
+<div class="screen active" id="screen-today">
+  <div class="sh" id="today-day-lbl"></div>
+  <div id="pelo-box-today"></div>
+  <div class="card card-cyan" id="workout-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div><div style="font-size:22px;" id="today-emoji"></div><div style="font-family:var(--font-mono);font-size:13px;font-weight:700;margin-top:4px;" id="today-wname"></div></div>
+      <span class="tbadge" id="today-badge"></span>
+    </div>
+    <div class="pbar" style="margin-bottom:5px;"><div class="pbar-fill" id="ex-bar" style="width:0%"></div></div>
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-bottom:12px;" id="ex-prog"></div>
+    <div id="ex-list"></div>
+  </div>
+  <div class="sh">Runner's knee PT — today's rotation</div>
+  <div class="card card-green">
+    <div class="pt-day-badge" id="pt-rotation-badge"></div>
+    <div id="pt-list"></div>
+  </div>
+  <div class="sh">Daily checklist</div>
+  <div class="card"><div id="cl-list"></div></div>
+  <div class="agrid">
+    <div class="actbtn" onclick="sendPrompt('Swap today and tomorrow workouts in my wedding fitness plan')">↕ SWAP W/ TOMORROW</div>
+    <div class="actbtn" onclick="sendPrompt('Suggest a specific Peloton class for my fitness level and todays workout in my wedding plan')">🚴 PELO CLASS ↗</div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div class="screen" id="screen-plan">
+  <div class="sh">This week</div>
+  <div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;" id="week-pills"></div>
+  <div id="plan-detail"></div>
+  <div class="sh">3-phase roadmap</div>
+  <div class="card" style="margin-bottom:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><span style="font-family:var(--font-mono);font-size:12px;font-weight:700;">Phase 1 — Foundation</span><span class="tbadge bg-gym">Now→Jun 15</span></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;">Build the morning habit. Form on chest + legs. Protect back + knee. 5 workouts/week. Peloton for cardio. PT rotation daily.</div>
+  </div>
+  <div class="card" style="margin-bottom:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><span style="font-family:var(--font-mono);font-size:12px;font-weight:700;">Phase 2 — Build</span><span class="tbadge bg-home">Jun 16→Jul 27</span></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;">Supersets, more weight, tighter nutrition. More Peloton HIIT. Waist visibly shrinking. Knee should be more stable.</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><span style="font-family:var(--font-mono);font-size:12px;font-weight:700;">Phase 3 — Polish</span><span class="tbadge bg-run">Jul 28→Aug 28</span></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;">Lean and defined. Maintain muscle, reduce bloat. Peloton yoga for recovery. Look your best Aug 29.</div>
+  </div>
+</div>
+
+<!-- FOOD -->
+<div class="screen" id="screen-food">
+  <div class="sh">Today's meals</div>
+  <div class="card" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+    <div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);text-transform:uppercase;margin-bottom:2px;">Total today</div><div style="font-family:var(--font-mono);font-size:16px;color:var(--green);" id="total-cal">—</div></div>
+    <div style="text-align:right;font-size:11px;color:var(--text3);line-height:1.7;">Target: ~1,900 cal<br>150g+ protein</div>
+  </div>
+  <div id="meal-tl"></div>
+  <div class="sh">Sunday grocery list</div>
+  <div class="card"><div id="grocery-list"></div></div>
+</div>
+
+<!-- MENU AI -->
+<div class="screen" id="screen-menu">
+  <div class="card" style="margin-bottom:12px;">
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Restaurant or menu items</div>
+    <textarea class="menu-ta" id="menu-input" placeholder="e.g. Chipotle&#10;&#10;— or paste items —&#10;Grilled chicken sandwich, side salad, fries..."></textarea>
+    <button class="abtn" id="analyze-btn" onclick="analyzeMenu()">⚡ ANALYZE FOR MY PLAN</button>
+  </div>
+  <div id="menu-result"></div>
+  <div class="sh">Your plan profile</div>
+  <div class="card" style="font-size:11px;color:var(--text2);line-height:2;">
+    <div><span style="color:var(--cyan);font-family:var(--font-mono);">GOAL</span> · Lean + athletic. Wedding Aug 29 2026.</div>
+    <div><span style="color:var(--cyan);font-family:var(--font-mono);">CALS</span> · ~1,900/day · <span style="color:var(--cyan);font-family:var(--font-mono);">PROTEIN</span> · 150g+</div>
+    <div><span style="color:var(--cyan);font-family:var(--font-mono);">AVOID</span> · Fried, cream sauces, liquid calories, excess sodium</div>
+    <div><span style="color:var(--cyan);font-family:var(--font-mono);">PREFER</span> · Grilled protein, veggies, whole grains, healthy fats</div>
+  </div>
+</div>
+
+<!-- ACTIVITY LOGGER -->
+<div class="screen" id="screen-activity">
+  <div class="sh">Log an activity</div>
+  <div class="card">
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">Activity type</div>
+    <div class="act-type-grid">
+      <div class="act-type-btn" id="atype-golf" onclick="selectType('golf')"><span class="at-icon">⛳</span><span class="at-lbl">Golf</span></div>
+      <div class="act-type-btn" id="atype-hike" onclick="selectType('hike')"><span class="at-icon">🥾</span><span class="at-lbl">Hike</span></div>
+      <div class="act-type-btn" id="atype-climb" onclick="selectType('climb')"><span class="at-icon">🧗</span><span class="at-lbl">Bouldering</span></div>
+      <div class="act-type-btn" id="atype-other" onclick="selectType('other')"><span class="at-icon">🏃</span><span class="at-lbl">Other cardio</span></div>
+    </div>
+
+    <div class="act-options" id="opts-golf">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Holes played</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('golf-holes','9 holes',this)">9 holes</div>
+        <div class="ao-pill" onclick="selectOpt('golf-holes','18 holes',this)">18 holes</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Walking or cart?</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('golf-mode','Walking',this)">Walking 🚶</div>
+        <div class="ao-pill" onclick="selectOpt('golf-mode','Cart',this)">Cart 🚗</div>
+      </div>
+    </div>
+
+    <div class="act-options" id="opts-hike">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Duration</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('hike-dur','30 min',this)">30 min</div>
+        <div class="ao-pill" onclick="selectOpt('hike-dur','1 hour',this)">1 hour</div>
+        <div class="ao-pill" onclick="selectOpt('hike-dur','2 hours',this)">2 hours</div>
+        <div class="ao-pill" onclick="selectOpt('hike-dur','3+ hours',this)">3+ hours</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Terrain</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('hike-terrain','Flat trail',this)">Flat trail</div>
+        <div class="ao-pill" onclick="selectOpt('hike-terrain','Moderate hills',this)">Moderate hills</div>
+        <div class="ao-pill" onclick="selectOpt('hike-terrain','Steep / elevation',this)">Steep / elevation</div>
+      </div>
+    </div>
+
+    <div class="act-options" id="opts-climb">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Session length</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('climb-dur','1 hour',this)">1 hour</div>
+        <div class="ao-pill" onclick="selectOpt('climb-dur','1.5 hours',this)">1.5 hours</div>
+        <div class="ao-pill" onclick="selectOpt('climb-dur','2+ hours',this)">2+ hours</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Grade range</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('climb-grade','V0–V3 warm-up day',this)">V0–V3</div>
+        <div class="ao-pill" onclick="selectOpt('climb-grade','V4–V6 project day',this)">V4–V6</div>
+        <div class="ao-pill" onclick="selectOpt('climb-grade','Mixed',this)">Mixed</div>
+      </div>
+    </div>
+
+    <div class="act-options" id="opts-other">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">What activity?</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('other-type','Bike ride (outdoor)',this)">Bike ride</div>
+        <div class="ao-pill" onclick="selectOpt('other-type','Swimming',this)">Swimming</div>
+        <div class="ao-pill" onclick="selectOpt('other-type','Walking',this)">Walking</div>
+        <div class="ao-pill" onclick="selectOpt('other-type','Yoga',this)">Yoga</div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Duration</div>
+      <div class="ao-row">
+        <div class="ao-pill" onclick="selectOpt('other-dur','30 min',this)">30 min</div>
+        <div class="ao-pill" onclick="selectOpt('other-dur','45 min',this)">45 min</div>
+        <div class="ao-pill" onclick="selectOpt('other-dur','1 hour',this)">1 hour</div>
+        <div class="ao-pill" onclick="selectOpt('other-dur','1.5+ hours',this)">1.5+ hrs</div>
+      </div>
+    </div>
+
+    <div style="margin-top:4px;"><button class="sbtn" onclick="logActivity()">LOG ACTIVITY</button></div>
+  </div>
+
+  <div class="sh">Activity log</div>
+  <div id="act-log-list"><div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0;">No activities logged yet</div></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="screen" id="screen-progress">
+  <div class="sh">Weekly check-in</div>
+  <div class="card">
+    <label class="clbl">Weight (lbs)</label>
+    <input type="number" class="cinp" id="inp-weight" placeholder="160">
+    <label class="clbl">Waist (inches)</label>
+    <input type="number" class="cinp" id="inp-waist" placeholder="32">
+    <label class="clbl">Energy today — <span id="feel-lbl" style="color:var(--cyan);">7</span> / 10</label>
+    <input type="range" min="1" max="10" value="7" step="1" style="width:100%;accent-color:var(--cyan);margin-bottom:14px;" id="inp-feel" oninput="document.getElementById('feel-lbl').textContent=this.value">
+    <button class="sbtn" onclick="saveCheckin()">SAVE CHECK-IN</button>
+  </div>
+  <div class="sh">Stats</div>
+  <div class="s2grid">
+    <div class="stat-pill" style="min-width:0;"><div class="stat-lbl">Days to wedding</div><div class="stat-val" id="stat-days">—</div></div>
+    <div class="stat-pill" style="min-width:0;"><div class="stat-lbl">Check-ins</div><div class="stat-val" id="stat-ci">0</div></div>
+    <div class="stat-pill" style="min-width:0;"><div class="stat-lbl">Activities logged</div><div class="stat-val" id="stat-acts">0</div></div>
+    <div class="stat-pill" style="min-width:0;"><div class="stat-lbl">Phase</div><div class="stat-val">1 / 3</div></div>
+  </div>
+  <div class="card" id="hist-card" style="display:none;">
+    <div class="sh" style="margin-top:0;">History</div>
+    <div id="hist-list"></div>
+  </div>
+  <div class="actbtn" style="margin-top:4px;" onclick="sendPrompt('Review my wedding fitness progress honestly — weight, knee, energy — and tell me what to adjust')">📊 GET COACH FEEDBACK ↗</div>
+</div>
+
+<!-- RULES -->
+<div class="screen" id="screen-rules">
+  <div class="sh">Non-negotiables</div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">💪</div><div><div class="rtitle">5 workouts per week</div><div class="rbody">Push · Cardio+Core · Pull · Legs · Run. Climbing/golf/hiking = bonus. Peloton enhances — never replaces (except Tue cardio).</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">🦵</div><div><div class="rtitle">PT every day — rotates so it's not the same</div><div class="rbody">Mon/Thu: Wall sits + TKEs + Straight leg raises. Tue/Fri: Wall sits + Step-downs + Hip raises. Wed/Sat: Wall sits + Band step-down + Clamshells. Sun: Light mix.</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">🚴</div><div><div class="rtitle">Peloton app — how it works</div><div class="rbody">Tue: Peloton HIIT ride IS your cardio. Fri: Peloton guides your run on your treadmill. All other days: optional add-on stretch, yoga, or core class.</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">⛳</div><div><div class="rtitle">Golf + hiking count as bonus activity</div><div class="rbody">Log them in the Activity tab. Walking 18 holes = ~1,400 cal burned. A long hike counts as active recovery. Neither replaces your 5 workouts.</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">🍗</div><div><div class="rtitle">150g protein daily</div><div class="rbody">1g per pound of body weight. Without this you lose muscle while cutting — opposite of what you want for the wedding.</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">😴</div><div><div class="rtitle">7+ hours sleep</div><div class="rbody">This is when your body actually changes. Poor sleep spikes cortisol, stores belly fat, and kills knee recovery.</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">🍺</div><div><div class="rtitle">No alcohol Mon–Thu</div><div class="rbody">Directly stalls fat loss and wrecks sleep. 1–2 drinks max on weekends.</div></div></div>
+  <div class="rcard"><div style="font-size:20px;flex-shrink:0;">🔙</div><div><div class="rtitle">Back protection always</div><div class="rbody">No overhead barbell. No heavy barbell squats. Dumbbells + bodyweight + Peloton only. Sharp pain = stop immediately.</div></div></div>
+</div>
+
+<div class="bnav">
+  <div class="nitem active" id="nav-today" onclick="showTab('today')"><span class="nicon">✅</span><div class="nlbl">Today</div></div>
+  <div class="nitem" id="nav-plan" onclick="showTab('plan')"><span class="nicon">📅</span><div class="nlbl">Plan</div></div>
+  <div class="nitem" id="nav-food" onclick="showTab('food')"><span class="nicon">🥗</span><div class="nlbl">Food</div></div>
+  <div class="nitem" id="nav-menu" onclick="showTab('menu')"><span class="nicon">🍽️</span><div class="nlbl">Menu AI</div></div>
+  <div class="nitem" id="nav-activity" onclick="showTab('activity')"><span class="nicon">⛳</span><div class="nlbl">Activity</div></div>
+  <div class="nitem" id="nav-progress" onclick="showTab('progress')"><span class="nicon">📈</span><div class="nlbl">Progress</div></div>
+  <div class="nitem" id="nav-rules" onclick="showTab('rules')"><span class="nicon">⚡</span><div class="nlbl">Rules</div></div>
+</div>
+
+<script>
+const WEDDING=new Date('2026-08-29');
+const TODAY=new Date('2026-05-11');
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DOW=TODAY.getDay();
+
+// PT ROTATIONS — keyed by DOW
+const PT_ROTATIONS={
+  0:{label:'Sun · Light recovery mix',exs:[
+    {n:'Wall sits',s:'30 sec × 3 rounds',d:'Hold steady, back flat against wall',note:'Quad activation — foundation of knee health'},
+    {n:'Terminal knee extensions (TKE)',s:'2×15 each leg',d:'Band around a fixed point at knee height, straighten leg against resistance',note:'Directly targets VMO — the key muscle for runner\'s knee'},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+  1:{label:'Mon · Quad + VMO focus',exs:[
+    {n:'Wall sits',s:'30 sec × 5, 3 rounds',d:'Hold steady — rest 30s between sets',note:''},
+    {n:'Terminal knee extensions (TKE)',s:'3×15 each leg',d:'Band at knee height around fixed point, extend leg against resistance',note:'Best exercise for runner\'s knee — do it slow'},
+    {n:'Straight leg raises',s:'3×15 each leg',d:'Lying flat, tighten quad, raise to 45°, lower slowly',note:'Strengthens quad without knee bend — very knee safe'},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+  2:{label:'Tue · Eccentric + hip control',exs:[
+    {n:'Wall sits',s:'30 sec × 5, 3 rounds',d:'',note:''},
+    {n:'Step-downs (eccentric)',s:'3×10 each leg',d:'Stand on a step, slowly lower heel toward floor with one leg, stop before touching, return up',note:'Eccentric quad load — one of the top runner\'s knee fixes'},
+    {n:'Single-leg hip raise (wall)',s:'3×8 each leg',d:'Balance on one leg, other leg bent on wall, raise bent leg out and up slowly',note:'Your existing exercise — hip control protects the knee'},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+  3:{label:'Wed · Band work + stability',exs:[
+    {n:'Wall sits',s:'30 sec × 5, 3 rounds',d:'',note:''},
+    {n:'Band step-down (pole)',s:'3×10 each leg',d:'Band around pole + right knee. Right foot on small box. Lower slowly until left foot touches floor. Return up.',note:'Your PT-prescribed exercise — most important one for your specific knee issue'},
+    {n:'Clamshells with band',s:'3×15 each side',d:'Band just above knees, lie on side, rotate top knee up like a clamshell, keep feet together',note:'Hip abductor strength directly reduces knee load during running'},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+  4:{label:'Thu · Quad + straight leg',exs:[
+    {n:'Wall sits',s:'30 sec × 5, 3 rounds',d:'',note:''},
+    {n:'Straight leg raises',s:'3×15 each leg',d:'Lying flat, tighten quad hard, raise to 45°, 2s hold, lower slowly',note:'No knee bend = zero patellofemoral stress'},
+    {n:'Terminal knee extensions (TKE)',s:'3×15 each leg',d:'Band at knee height, slow and controlled',note:''},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+  5:{label:'Fri · Eccentric + band',exs:[
+    {n:'Wall sits',s:'30 sec × 5, 3 rounds',d:'',note:''},
+    {n:'Step-downs (eccentric)',s:'3×10 each leg',d:'Slow controlled descent on one leg from a step. Stop before heel touches.',note:'Pre-run activation — does wonders for knee on run days'},
+    {n:'Clamshells with band',s:'3×15 each side',d:'Band above knees, rotate top knee up, keep pelvis still',note:'Hip strength = less knee collapse when running'},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+  6:{label:'Sat · Full rotation + band step-down',exs:[
+    {n:'Wall sits',s:'30 sec × 4, 3 rounds',d:'',note:''},
+    {n:'Band step-down (pole)',s:'3×10 each leg',d:'Band around pole + right knee. Right foot on box. Lower until left foot touches. Return up.',note:'Your key PT exercise — do this one every single week'},
+    {n:'Single-leg hip raise (wall)',s:'3×8 each leg',d:'Balance + raise bent leg out and up',note:''},
+    {n:'Foot stretch 1',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+    {n:'Foot stretch 2',s:'Hold 30s × 3',d:'Your PT foot stretch',note:''},
+  ]},
+};
+
+const WORKOUTS=[
+  {day:'Sun',emoji:'😴',name:'Rest + meal prep',type:'REST',bc:'bg-rest',sections:[]},
+  {day:'Mon',emoji:'💪',name:'Push — chest, shoulders, triceps + core',type:'GYM',bc:'bg-gym',sections:[
+    {lbl:'Push',exs:[
+      {n:'Incline dumbbell press',s:'3×10',d:'20–25 lb dumbbells',note:'Upper chest — back safe'},
+      {n:'Dumbbell chest fly',s:'3×12',d:'15 lb, slow and controlled',note:''},
+      {n:'Push-ups',s:'3×max',d:'Wide grip, full range',note:'Bodyweight — back safe'},
+      {n:'Lateral raises',s:'3×12',d:'10 lb dumbbells',note:'Shoulder width = V-shape'},
+      {n:'Tricep dips (bench)',s:'3×10',d:'Feet elevated',note:'No overhead load'},
+    ]},
+    {lbl:'Core (10–15 min)',exs:[
+      {n:'Plank hold',s:'3×45s',d:'Perfect form, breathe',note:''},
+      {n:'Dead bug',s:'3×10 each side',d:'Slow and controlled',note:'Back-safe core'},
+      {n:'Bicycle crunches',s:'3×20',d:"Don't pull your neck",note:''},
+    ]},
+  ]},
+  {day:'Tue',emoji:'🔥',name:'Cardio + abs — Peloton day',type:'PELOTON',bc:'bg-pelo',sections:[
+    {lbl:'Cardio (Peloton on your bike)',exs:[
+      {n:'Peloton HIIT ride or low-impact ride',s:'20–30 min',d:'Search "HIIT ride" or "low impact ride" — knee safe, high burn',note:'Peloton IS your cardio today — replaces running intervals'},
+      {n:'Jump rope (optional)',s:'2×2 min',d:'Only if knee feels good',note:'Skip if any knee pain'},
+    ]},
+    {lbl:'Core (15 min)',exs:[
+      {n:'Side plank',s:'2×30s each',d:'',note:'Obliques = waist definition'},
+      {n:'Hollow body hold',s:'3×20s',d:'',note:''},
+      {n:'Leg raises (lying)',s:'3×15',d:'',note:''},
+      {n:'Russian twists',s:'3×20',d:'Bodyweight or hold 10 lb',note:''},
+    ]},
+  ]},
+  {day:'Wed',emoji:'💪',name:'Pull — back, biceps + core',type:'GYM',bc:'bg-gym',sections:[
+    {lbl:'Pull',exs:[
+      {n:'Pull-ups or assisted',s:'3×6–8',d:'Full hang, chin over bar',note:'V-taper builder'},
+      {n:'Seated cable row',s:'3×10',d:'Medium weight, chest tall',note:''},
+      {n:'Single-arm dumbbell row',s:'3×10 ea',d:'20 lb, brace core',note:'Back-safe'},
+      {n:'Dumbbell curl',s:'3×12',d:'15 lb, slow on the way down',note:'Arms for the wedding'},
+      {n:'Hammer curl',s:'2×12',d:'15 lb',note:'Outer bicep + forearm'},
+      {n:'Band pull-aparts',s:'3×15',d:'Light resistance',note:'Posture + rear delt'},
+    ]},
+    {lbl:'Core (10 min)',exs:[
+      {n:'Ab wheel or plank-to-downdog',s:'3×10',d:'',note:''},
+      {n:'Side plank hip dips',s:'2×12 each',d:'',note:'Obliques'},
+    ]},
+  ]},
+  {day:'Thu',emoji:'🦵',name:'Legs + glutes — knee-safe',type:'GYM/HOME',bc:'bg-home',sections:[
+    {lbl:'Legs',exs:[
+      {n:'Goblet squat',s:'3×12',d:'20 lb dumbbell, wide stance',note:'Safer than barbell for back'},
+      {n:'Romanian deadlift (DBs)',s:'3×10',d:'20–25 lb each hand',note:'Hinge not round — back safe'},
+      {n:'Step-ups (bench or box)',s:'3×10 ea',d:'Bodyweight or hold 10 lb',note:'Knee-friendly'},
+      {n:'Glute bridge',s:'3×15',d:'Squeeze at top, hold 1s',note:'Glutes + lower back stabilizer'},
+      {n:'Calf raises',s:'3×20',d:'On a step for full range',note:''},
+    ]},
+  ]},
+  {day:'Fri',emoji:'🏃',name:'Run + stretch — Peloton guided',type:'RUN',bc:'bg-run',sections:[
+    {lbl:'Run',exs:[
+      {n:'Peloton treadmill class on your treadmill',s:'3–4 miles',d:'Search "outdoor run" class and follow the instructor pace',note:'More engaging than running alone. Cut to 2 mi if knee flares.'},
+      {n:'Post-run stretch',s:'10 min',d:'Hip flexors, quads, calves, hamstrings — or use a 10 min Peloton stretch class',note:''},
+    ]},
+  ]},
+  {day:'Sat',emoji:'😴',name:'Rest + active recovery',type:'REST',bc:'bg-rest',sections:[]},
+];
+
+const PELO_SUGGEST={
+  0:{icon:'🧘',lbl:'Peloton · Rest day',title:'Yoga or Full Body Stretch',desc:'20–30 min. Search "yoga for athletes" or "full body stretch". Perfect Sunday active recovery.'},
+  1:{icon:'🚴',lbl:'Peloton · Optional add-on',title:'5–10 min Core class after gym',desc:'Search "core" in Peloton classes after your Push workout. Quick and effective.'},
+  2:{icon:'🔥',lbl:'Peloton · Main cardio today',title:'HIIT Ride or Low Impact Ride — 20–30 min',desc:'This IS your cardio. Search "HIIT ride" or "low impact ride". Low impact = knee safe.'},
+  3:{icon:'🧘',lbl:'Peloton · Optional stretch',title:'Upper body stretch — 10–15 min',desc:'After Pull workout. Search "upper body stretch". Great for back and posture recovery.'},
+  4:{icon:'🧘',lbl:'Peloton · Optional',title:'Yoga or mobility class',desc:'Legs feel beat up? A 20 min yoga class is perfect active recovery after leg day.'},
+  5:{icon:'🏃',lbl:'Peloton · Guided run',title:'Treadmill class on your treadmill',desc:'Search "outdoor run" class and follow the instructor. Makes running way more fun.'},
+  6:{icon:'🧘',lbl:'Peloton · Rest day',title:'Meditation or light stretch — 10–15 min',desc:'Scroll to Meditation in the app. Preps body and mind for the week ahead.'},
+};
+
+const CHECKLIST=[
+  {t:'Morning workout done',time:'AM'},
+  {t:'PT rotation completed',time:'AM'},
+  {t:'Breakfast — protein first',time:'7 AM'},
+  {t:'150g protein on track',time:'All day'},
+  {t:'80 oz water',time:'All day'},
+  {t:'Lunch logged',time:'Noon'},
+  {t:'Post-workout stretch',time:'After'},
+  {t:'Dinner — lean protein + veg',time:'7 PM'},
+  {t:'No alcohol (Mon–Thu)',time:'Evening'},
+  {t:'In bed by 10:30 PM',time:'10:30'},
+];
+
+const MEALS={
+  1:{total:1770,items:[{t:'7 AM',n:'Breakfast burrito',d:'Eggs, sausage, cheese, peppers in tortilla',m:'~450 kcal · P:32 C:35 F:18'},{t:'10:30 AM',n:'Greek yogurt + almonds',d:'Full-fat Greek yogurt, small handful almonds',m:'~220 kcal · P:18 C:12 F:10'},{t:'1 PM',n:'Grilled chicken bowl',d:'5 oz chicken, brown rice, black beans, salsa, ½ avocado',m:'~520 kcal · P:42 C:48 F:14'},{t:'7 PM',n:'Salmon + sweet potato + broccoli',d:'6 oz salmon, 1 medium sweet potato, roasted broccoli',m:'~580 kcal · P:44 C:42 F:18'}]},
+  2:{total:1630,items:[{t:'7 AM',n:'Overnight oats',d:'½ cup oats, protein powder, blueberries, almond butter',m:'~400 kcal · P:30 C:45 F:12'},{t:'10:30 AM',n:'Apple + peanut butter',d:'1 apple, 2 tbsp peanut butter',m:'~190 kcal · P:5 C:28 F:8'},{t:'1 PM',n:'Turkey wrap',d:'Whole wheat tortilla, turkey, spinach, hummus, cucumber',m:'~480 kcal · P:35 C:40 F:14'},{t:'7 PM',n:'Lean beef stir fry',d:'5 oz 93% ground beef, bell peppers, broccoli, brown rice',m:'~560 kcal · P:40 C:50 F:16'}]},
+  3:{total:1720,items:[{t:'7 AM',n:'Breakfast burrito',d:'Eggs, sausage, cheese, peppers in tortilla',m:'~450 kcal · P:32 C:35 F:18'},{t:'10:30 AM',n:'Cottage cheese + pineapple',d:'½ cup cottage cheese, pineapple chunks',m:'~200 kcal · P:20 C:18 F:4'},{t:'1 PM',n:'Big salad + protein',d:'Mixed greens, chicken or tuna, chickpeas, olive oil + lemon',m:'~500 kcal · P:40 C:35 F:16'},{t:'7 PM',n:'Chicken thighs + quinoa + green beans',d:'2 bone-in thighs, 1 cup quinoa, steamed green beans',m:'~570 kcal · P:48 C:50 F:14'}]},
+  4:{total:1580,items:[{t:'7 AM',n:'Scrambled eggs + toast',d:'3 eggs, whole grain toast, butter, hot sauce',m:'~380 kcal · P:24 C:28 F:16'},{t:'Post-workout',n:'Protein shake',d:'1 scoop whey + water or milk',m:'~180 kcal · P:26 C:8 F:3'},{t:'1 PM',n:'Leftover meal prep',d:'Use whatever you prepped Sunday',m:'~490 kcal · P:38 C:45 F:14'},{t:'7 PM',n:'Shrimp tacos',d:'6 oz shrimp, corn tortillas, cabbage slaw, avocado, lime',m:'~530 kcal · P:40 C:40 F:16'}]},
+  5:{total:1710,items:[{t:'7 AM',n:'Breakfast burrito',d:'Eggs, sausage, cheese, peppers in tortilla',m:'~450 kcal · P:32 C:35 F:18'},{t:'10:30 AM',n:'Rice cakes + almond butter',d:'2 rice cakes, 1.5 tbsp almond butter',m:'~200 kcal · P:5 C:24 F:9'},{t:'1 PM',n:'Tuna salad sandwich',d:'Whole grain bread, canned tuna, avocado mayo, celery, tomato',m:'~470 kcal · P:36 C:38 F:14'},{t:'7 PM',n:'Pork tenderloin + potatoes + asparagus',d:'6 oz pork, roasted potatoes, asparagus in olive oil',m:'~590 kcal · P:46 C:48 F:16'}]},
+  6:{total:1750,items:[{t:'7 AM',n:'Smoothie bowl',d:'Banana, frozen berries, protein powder, granola, chia seeds',m:'~430 kcal · P:28 C:55 F:10'},{t:'10:30 AM',n:'Mixed nuts',d:'Small handful',m:'~170 kcal · P:5 C:8 F:14'},{t:'1 PM',n:'Burrito bowl',d:'Bowl not burrito if eating out. Black beans, extra veggies, skip sour cream.',m:'~550 kcal · P:38 C:58 F:14'},{t:'7 PM',n:'Grilled steak + salad',d:'6 oz sirloin, grilled zucchini + peppers, side salad',m:'~600 kcal · P:48 C:25 F:22'}]},
+  0:{total:1750,items:[{t:'7 AM',n:'Big Sunday prep breakfast',d:'3 eggs, turkey bacon ×2, avocado, fruit',m:'~480 kcal · P:32 C:30 F:20'},{t:'10:30 AM',n:'Greek yogurt + honey',d:'High protein, easy',m:'~190 kcal · P:17 C:20 F:4'},{t:'1 PM',n:'Meal-prepped chicken + rice',d:'Prep 4–5 portions right now',m:'~500 kcal · P:42 C:50 F:10'},{t:'7 PM',n:'Pasta + lean turkey meat sauce',d:'Whole wheat pasta, 93% ground turkey, marinara, parmesan',m:'~580 kcal · P:42 C:62 F:14'}]},
+};
+
+const GROCERY=[
+  {cat:'🍗 Protein',items:['Chicken breasts or thighs (2 lbs)','Salmon fillets (2)','Lean ground turkey (1 lb)','Eggs (1 dozen)','Turkey or chicken sausage','Greek yogurt (32 oz)','Cottage cheese (16 oz)','Canned tuna (3–4 cans)','Shrimp (1 lb, frozen)']},
+  {cat:'🌾 Carbs + grains',items:['Brown rice','Quinoa','Whole wheat bread','Whole wheat tortillas','Rolled oats','Sweet potatoes (3–4)','Whole wheat pasta','Rice cakes']},
+  {cat:'🥦 Produce',items:['Broccoli','Bell peppers (red + green)','Spinach (bag)','Zucchini','Avocados (4)','Bananas','Blueberries (fresh or frozen)','Apples','Asparagus','Green beans']},
+  {cat:'🫙 Pantry',items:['Olive oil','Almonds / mixed nuts','Peanut butter or almond butter','Chia seeds','Low-sodium soy sauce','Salsa','Hummus','Marinara sauce']},
+];
+
+const ACT_CALS={golf:{9:700,18:1400},hike:{'30 min':200,'1 hour':400,'2 hours':750,'3+ hours':1100},climb:{'1 hour':450,'1.5 hours':600,'2+ hours':800},other:{'30 min':250,'45 min':375,'1 hour':480,'1.5+ hours':650}};
+
+let state={done:{},cl:{},gr:{},checkins:[],activities:[],actOpts:{}};
+try{const s=localStorage.getItem('ypfinal');if(s)state={...state,...JSON.parse(s)};}catch(e){}
+function save(){try{localStorage.setItem('ypfinal',JSON.stringify(state));}catch(e){}}
+
+let selectedType=null;
+
+function init(){
+  const dl=Math.ceil((WEDDING-TODAY)/86400000);
+  document.getElementById('hdr-date').textContent=TODAY.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+  document.getElementById('hdr-days').textContent=dl+'d';
+  document.getElementById('stat-days').textContent=dl+'d';
+  document.getElementById('stat-ci').textContent=(state.checkins||[]).length;
+  document.getElementById('stat-acts').textContent=(state.activities||[]).length;
+  updateCL();
+  renderToday();
+  renderPT();
+  renderCL();
+  renderWeekPills(DOW);
+  renderPlanDetail(DOW);
+  renderFood();
+  renderGrocery();
+  renderActLog();
+  renderHistory();
+}
+
+function updateCL(){
+  const total=CHECKLIST.length;
+  const done=CHECKLIST.filter((_,i)=>!!state.cl['c'+i]).length;
+  const pct=Math.round((done/total)*100);
+  document.getElementById('hdr-pct').textContent=done+' / '+total;
+  document.getElementById('hdr-bar').style.width=pct+'%';
+}
+
+function renderToday(){
+  const w=WORKOUTS[DOW];
+  const p=PELO_SUGGEST[DOW];
+  document.getElementById('today-day-lbl').textContent=DAYS[DOW]+' — '+w.name;
+  document.getElementById('today-emoji').textContent=w.emoji;
+  document.getElementById('today-wname').textContent=w.name;
+  const tb=document.getElementById('today-badge');
+  tb.textContent=w.type;tb.className='tbadge '+w.bc;
+  document.getElementById('pelo-box-today').innerHTML=`<div class="pelo-box"><div style="font-size:20px;">${p.icon}</div><div><div class="pelo-lbl">${p.lbl}</div><div class="pelo-title">${p.title}</div><div class="pelo-desc">${p.desc}</div></div></div>`;
+  const list=document.getElementById('ex-list');
+  list.innerHTML='';
+  if(!w.sections.length){
+    list.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0;">Rest day — do your PT rotation, use Peloton for yoga/stretch, eat well.</div>';
+    document.getElementById('ex-bar').style.width='100%';
+    document.getElementById('ex-prog').textContent='Rest day ✓';
+    return;
+  }
+  let total=0,done=0;
+  w.sections.forEach((sec,si)=>{
+    const lbl=document.createElement('div');
+    lbl.className='sdiv';lbl.textContent=sec.lbl;list.appendChild(lbl);
+    sec.exs.forEach((ex,ei)=>{
+      total++;
+      const key='w'+DOW+'s'+si+'e'+ei;
+      if(state.done[key])done++;
+      const row=document.createElement('div');
+      row.className='exrow';
+      row.innerHTML=`<div class="excheck${state.done[key]?' done':''}" onclick="toggleEx('${key}',this,${DOW},${si},${ei})"></div><div><div class="exname">${ex.n}</div><div class="exsets">${ex.s}</div><div class="exdetail">${ex.d}</div>${ex.note?`<div class="exnote">${ex.note}</div>`:''}</div>`;
+      list.appendChild(row);
+    });
+  });
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('ex-bar').style.width=pct+'%';
+  document.getElementById('ex-prog').textContent=done+' of '+total+' done';
+}
+
+function toggleEx(key,el,dow,si,ei){
+  state.done[key]=!state.done[key];
+  el.classList.toggle('done',!!state.done[key]);
+  save();
+  const w=WORKOUTS[dow];
+  let total=0,done=0;
+  w.sections.forEach((sec,si2)=>sec.exs.forEach((_,ei2)=>{total++;if(state.done['w'+dow+'s'+si2+'e'+ei2])done++;}));
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('ex-bar').style.width=pct+'%';
+  document.getElementById('ex-prog').textContent=done+' of '+total+' done';
+}
+
+function renderPT(){
+  const rot=PT_ROTATIONS[DOW];
+  document.getElementById('pt-rotation-badge').textContent=rot.label;
+  const el=document.getElementById('pt-list');
+  el.innerHTML='';
+  rot.exs.forEach((ex,i)=>{
+    const key='pt'+DOW+'_'+i;
+    const row=document.createElement('div');
+    row.className='exrow';
+    row.innerHTML=`<div class="excheck${state.done[key]?' done':''}" onclick="togglePT('${key}',this)"></div><div><div class="exname">${ex.n}</div><div class="exsets">${ex.s}</div><div class="exdetail">${ex.d}</div>${ex.note?`<div class="exnote">${ex.note}</div>`:''}</div>`;
+    el.appendChild(row);
+  });
+}
+function togglePT(key,el){state.done[key]=!state.done[key];el.classList.toggle('done',!!state.done[key]);save();}
+
+function renderCL(){
+  const el=document.getElementById('cl-list');
+  el.innerHTML='';
+  CHECKLIST.forEach((item,i)=>{
+    const done=!!state.cl['c'+i];
+    const row=document.createElement('div');
+    row.className='chkrow';
+    row.innerHTML=`<div class="chkdot${done?' done':''}"></div><div class="chklbl${done?' done':''}">${item.t}</div><div class="chktime">${item.time}</div>`;
+    row.onclick=()=>{state.cl['c'+i]=!state.cl['c'+i];row.querySelector('.chkdot').classList.toggle('done',!!state.cl['c'+i]);row.querySelector('.chklbl').classList.toggle('done',!!state.cl['c'+i]);save();updateCL();};
+    el.appendChild(row);
+  });
+}
+
+function renderWeekPills(active){
+  const el=document.getElementById('week-pills');
+  el.innerHTML='';
+  WORKOUTS.forEach((w,i)=>{
+    const pill=document.createElement('div');
+    pill.className='wpill'+(i===active?' active':'');
+    pill.innerHTML=`<div class="wpill-name">${w.day}</div><span class="wpill-emoji">${w.emoji}</span><div class="wpill-type">${w.type}</div>`;
+    pill.onclick=()=>{document.querySelectorAll('.wpill').forEach(p=>p.classList.remove('active'));pill.classList.add('active');renderPlanDetail(i);};
+    el.appendChild(pill);
+  });
+}
+
+function renderPlanDetail(dow){
+  const w=WORKOUTS[dow];
+  const p=PELO_SUGGEST[dow];
+  const pt=PT_ROTATIONS[dow];
+  const el=document.getElementById('plan-detail');
+  let html=`<div class="card card-cyan" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;"><div><div style="font-size:20px;">${w.emoji}</div><div style="font-family:var(--font-mono);font-size:13px;font-weight:700;margin-top:4px;">${w.day} — ${w.name}</div></div><span class="tbadge ${w.bc}">${w.type}</span></div>`;
+  if(!w.sections.length){html+='<div style="font-size:12px;color:var(--text2);">Rest day. PT rotation, Peloton yoga/stretch, walk. Recovery = progress.</div>';}
+  else{w.sections.forEach(sec=>{html+=`<div class="sdiv">${sec.lbl}</div>`;sec.exs.forEach(ex=>{html+=`<div class="exrow"><div style="width:7px;height:7px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:5px;"></div><div><div class="exname">${ex.n} <span class="exsets">${ex.s}</span></div><div class="exdetail">${ex.d}</div>${ex.note?`<div class="exnote">${ex.note}</div>`:''}</div></div>`;});});}
+  html+=`</div><div class="pelo-box"><div style="font-size:20px;">${p.icon}</div><div><div class="pelo-lbl">${p.lbl}</div><div class="pelo-title">${p.title}</div><div class="pelo-desc">${p.desc}</div></div></div>`;
+  html+=`<div class="card card-green" style="margin-bottom:10px;"><div class="pt-day-badge">${pt.label}</div>`;
+  pt.exs.forEach(ex=>{html+=`<div class="exrow"><div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;"></div><div><div class="exname">${ex.n} <span class="exsets" style="color:var(--green);">${ex.s}</span></div><div class="exdetail">${ex.d}</div>${ex.note?`<div class="exnote">${ex.note}</div>`:''}</div></div>`;});
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+function renderFood(){
+  const m=MEALS[DOW]||MEALS[1];
+  document.getElementById('total-cal').textContent='~'+m.total.toLocaleString()+' cal';
+  const el=document.getElementById('meal-tl');
+  el.innerHTML='';
+  m.items.forEach((item,i)=>{
+    const isLast=i===m.items.length-1;
+    const wrap=document.createElement('div');
+    wrap.className='mwrap';
+    wrap.innerHTML=`<div class="mtcol"><div class="mtime">${item.t}</div><div class="mdot"></div>${!isLast?'<div class="mline"></div>':''}</div><div class="mcontent"><div class="mname">${item.n}</div><div class="mdesc">${item.d}</div><div class="mmacros">${item.m}</div></div>`;
+    el.appendChild(wrap);
+  });
+}
+
+function renderGrocery(){
+  const el=document.getElementById('grocery-list');
+  el.innerHTML='';
+  GROCERY.forEach(sec=>{
+    const cat=document.createElement('div');cat.className='gcat';cat.textContent=sec.cat;el.appendChild(cat);
+    sec.items.forEach((item,i)=>{
+      const key=sec.cat+'_'+i;const done=!!state.gr[key];
+      const row=document.createElement('div');row.className='gitem';
+      row.innerHTML=`<div class="gcheck${done?' done':''}"></div><div class="gtxt${done?' done':''}">${item}</div>`;
+      row.onclick=()=>{state.gr[key]=!state.gr[key];row.querySelector('.gcheck').classList.toggle('done',!!state.gr[key]);row.querySelector('.gtxt').classList.toggle('done',!!state.gr[key]);save();};
+      el.appendChild(row);
+    });
+  });
+}
+
+function selectType(type){
+  selectedType=type;
+  document.querySelectorAll('.act-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('atype-'+type).classList.add('selected');
+  document.querySelectorAll('.act-options').forEach(o=>o.classList.remove('show'));
+  document.getElementById('opts-'+type).classList.add('show');
+  state.actOpts={};
+}
+
+function selectOpt(key,val,el){
+  state.actOpts[key]=val;
+  el.closest('.ao-row').querySelectorAll('.ao-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function logActivity(){
+  if(!selectedType){alert('Pick an activity type first');return;}
+  const opts=state.actOpts||{};
+  let detail='',cals=0;
+  if(selectedType==='golf'){
+    const holes=opts['golf-holes']||'9 holes';
+    const mode=opts['golf-mode']||'Walking';
+    detail=holes+' · '+mode;
+    const h=holes==='18 holes'?18:9;
+    cals=mode==='Walking'?ACT_CALS.golf[h]:Math.round(ACT_CALS.golf[h]*0.35);
+  } else if(selectedType==='hike'){
+    const dur=opts['hike-dur']||'1 hour';
+    const terrain=opts['hike-terrain']||'Moderate hills';
+    detail=dur+' · '+terrain;
+    const base=ACT_CALS.hike[dur]||400;
+    const mult=terrain==='Steep / elevation'?1.4:terrain==='Moderate hills'?1.15:1;
+    cals=Math.round(base*mult);
+  } else if(selectedType==='climb'){
+    const dur=opts['climb-dur']||'1 hour';
+    const grade=opts['climb-grade']||'V4–V6 project day';
+    detail=dur+' · '+grade;
+    cals=ACT_CALS.climb[dur]||450;
+  } else {
+    const atype=opts['other-type']||'Other';
+    const dur=opts['other-dur']||'1 hour';
+    detail=atype+' · '+dur;
+    cals=ACT_CALS.other[dur]||400;
+  }
+  if(!state.activities)state.activities=[];
+  state.activities.push({type:selectedType,detail,cals,date:TODAY.toLocaleDateString('en-US',{month:'short',day:'numeric'})});
+  save();
+  document.getElementById('stat-acts').textContent=state.activities.length;
+  renderActLog();
+  selectedType=null;
+  state.actOpts={};
+  document.querySelectorAll('.act-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.act-options').forEach(o=>o.classList.remove('show'));
+  document.querySelectorAll('.ao-pill').forEach(p=>p.classList.remove('sel'));
+}
+
+function renderActLog(){
+  const el=document.getElementById('act-log-list');
+  const acts=state.activities||[];
+  if(!acts.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px 0;">No activities logged yet</div>';return;}
+  const icons={golf:'⛳',hike:'🥾',climb:'🧗',other:'🏃'};
+  el.innerHTML=acts.slice().reverse().map(a=>`<div class="act-log-card"><div class="act-log-left"><div class="act-log-type">${icons[a.type]||'🏃'} ${a.type.toUpperCase()}</div><div class="act-log-detail">${a.detail}</div></div><div style="text-align:right;"><div class="act-log-cal">~${a.cals.toLocaleString()} cal</div><div class="act-log-date">${a.date}</div></div></div>`).join('');
+}
+
+async function analyzeMenu(){
+  const input=document.getElementById('menu-input').value.trim();
+  if(!input)return;
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true;btn.textContent='ANALYZING...';
+  document.getElementById('menu-result').innerHTML='<div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
+  const prompt=`You are a nutrition coach for someone with this exact plan:
+- Goal: lean and athletic for wedding Aug 29 2026. 5'7", 160 lbs.
+- Calories: ~1,900/day. Protein: 150g+ per day.
+- Avoid: fried food, heavy cream sauces, liquid calories, excess sodium, refined carbs
+- Prefer: grilled/baked protein, vegetables, whole grains, healthy fats in moderation
+- No supplements. Back injury (no heavy overhead lifting advice). Runner's knee (anti-inflammatory foods are a bonus).
+
+Restaurant or menu input: "${input}"
+
+Respond ONLY with a valid JSON object. No markdown, no backticks, no extra text:
+{"restaurant":"name","emoji":"one food emoji","insight":"2-3 sentences about this place for their plan — what to watch out for and what works.","choices":[{"name":"dish name","grade":"A","badge":"Best Choice","modification":"how to order it or what to skip","why":"1-2 sentences on why it fits. Estimate protein if possible."}]}
+Include 3-5 choices. Grade A/B/C. Badges: Best Choice, Solid Pick, OK if modified.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    const bc={'Best Choice':'cb-best','Solid Pick':'cb-solid','OK if modified':'cb-ok'};
+    const gc={'A':'ga','B':'gb','C':'gc'};
+    let html=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:24px;">${parsed.emoji||'🍽️'}</span><span style="font-family:var(--font-mono);font-size:14px;font-weight:700;">${parsed.restaurant}</span></div>`;
+    html+=`<div class="insight-box">${parsed.insight}</div>`;
+    html+=`<div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Best choices for your plan</div>`;
+    parsed.choices.forEach(c=>{html+=`<div class="ccard"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;"><div style="font-size:13px;font-weight:600;flex:1;margin-right:8px;line-height:1.3;">${c.name}</div><div class="cgrade ${gc[c.grade]||'gb'}">${c.grade}</div></div><span class="cbadge ${bc[c.badge]||'cb-solid'}">${c.badge}</span>${c.modification?`<div style="font-size:11px;color:var(--purple);font-style:italic;margin-bottom:4px;">✦ ${c.modification}</div>`:''}<div style="font-size:11px;color:var(--text2);line-height:1.5;">${c.why}</div></div>`;});
+    document.getElementById('menu-result').innerHTML=html;
+  }catch(e){
+    document.getElementById('menu-result').innerHTML='<div class="card" style="color:var(--red);font-size:13px;">Could not analyze — try again or be more specific.</div>';
+  }
+  btn.disabled=false;btn.textContent='⚡ ANALYZE FOR MY PLAN';
+}
+
+function saveCheckin(){
+  const w=document.getElementById('inp-weight').value;
+  const wa=document.getElementById('inp-waist').value;
+  const f=document.getElementById('inp-feel').value;
+  if(!w&&!wa)return;
+  if(!state.checkins)state.checkins=[];
+  state.checkins.push({date:TODAY.toLocaleDateString('en-US',{month:'short',day:'numeric'}),weight:w,waist:wa,feel:f});
+  save();
+  document.getElementById('stat-ci').textContent=state.checkins.length;
+  renderHistory();
+  document.getElementById('inp-weight').value='';
+  document.getElementById('inp-waist').value='';
+}
+
+function renderHistory(){
+  const c=state.checkins||[];
+  if(!c.length)return;
+  document.getElementById('hist-card').style.display='block';
+  document.getElementById('hist-list').innerHTML=c.slice(-6).reverse().map(ci=>`<div class="hrow"><div class="hdate">${ci.date}</div><div class="hvals">${ci.weight?ci.weight+' lbs':''} ${ci.waist?'· '+ci.waist+'"':''} ${ci.feel?'· feel '+ci.feel+'/10':''}</div></div>`).join('');
+}
+
+function showTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab,.nitem').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('nav-'+tab).classList.add('active');
+}
+
+init();
+</script>
